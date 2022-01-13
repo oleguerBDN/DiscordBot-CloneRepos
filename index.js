@@ -37,7 +37,7 @@ function getGitLink(text) {
     textAfterRepoWord.indexOf(" ")
   );
 
-  return gitLink || null;
+  return gitLink.indexOf("http") >= 0 ? gitLink : null;
 }
 
 function cloneGitRepo(link, path) {
