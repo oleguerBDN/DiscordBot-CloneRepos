@@ -18,7 +18,7 @@ client.on("messageCreate", (msg) => {
   const gitLink = getGitLink(message);
 
   if (gitLink) {
-    const initPath = "C:/Users/User/Desktop/StudentsChallenges/";
+    const initPath = config.MAIN_FOLDER_PATH;
     const pathToCopy = checkAndGetPath(initPath, category.name, channel.name);
     cloneGitRepo(gitLink, pathToCopy);
   }
@@ -27,7 +27,11 @@ client.on("messageCreate", (msg) => {
 client.login(config.BOT_TOKEN);
 
 function getGitLink(text) {
-  const textAfterRepoWord = text.substring(text.indexOf("Repo:") + 5).trim();
+  const textAfterRepoWord = text
+    .substring(
+      text.indexOf(config.WORD__BEFORE_LINK) + config.WORD__BEFORE_LINK.length
+    )
+    .trim();
   const gitLink = textAfterRepoWord.substring(
     0,
     textAfterRepoWord.indexOf(" ")
