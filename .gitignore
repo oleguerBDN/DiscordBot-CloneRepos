@@ -112,3 +112,4 @@ node_modules
 sonar-project.properties
 
 pull-all.js
+config.json

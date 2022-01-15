@@ -6,8 +6,27 @@ const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
 });
 
+const initPath = config.MAIN_FOLDER_PATH;
+
 client.once("ready", () => {
   console.log("Ready!");
+
+  const category = client.channels.cache.find((ch) => ch.name === "WEEK-20");
+  const channel = client.channels.cache.find(
+    (ch) => ch.name === "challenge-7" && ch.parentId === category.id
+  );
+
+  if (category && channel) {
+    const pathToCopy = checkAndGetPath(initPath, category.name, channel.name);
+    channel.messages.fetch().then((messages) => {
+      messages.forEach((message) => {
+        const gitLink = getGitLink(message.content);
+        if (gitLink) {
+          cloneGitRepo(gitLink, pathToCopy);
+        }
+      });
+    });
+  }
 });
 
 client.on("messageCreate", (msg) => {
@@ -18,7 +37,6 @@ client.on("messageCreate", (msg) => {
   const gitLink = getGitLink(message);
 
   if (gitLink) {
-    const initPath = config.MAIN_FOLDER_PATH;
     const pathToCopy = checkAndGetPath(initPath, category.name, channel.name);
     cloneGitRepo(gitLink, pathToCopy);
   }
