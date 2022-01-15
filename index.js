@@ -1,6 +1,7 @@
 const { Client, Intents } = require("discord.js");
 const config = require("./config.json");
 const shell = require("shelljs");
+const { program } = require("commander");
 
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
@@ -8,12 +9,21 @@ const client = new Client({
 
 const initPath = config.MAIN_FOLDER_PATH;
 
-client.once("ready", () => {
-  console.log("Ready!");
+program.option("-w, --week <week>");
+program.option("-ch, --challenge <challenge>");
+program.option("-we, --weekend");
+program.parse(process.argv);
+const { week, challenge, weekend } = program.opts();
 
-  const category = client.channels.cache.find((ch) => ch.name === "WEEK-20");
+client.once("ready", () => {
+  console.log("Bot is running :)");
+  const category = client.channels.cache.find(
+    (ch) => ch.name === "WEEK-" + week
+  );
   const channel = client.channels.cache.find(
-    (ch) => ch.name === "challenge-7" && ch.parentId === category.id
+    (ch) =>
+      ch.name === "challenge-" + (weekend ? "weekend-" + week : challenge) &&
+      ch.parentId === category.id
   );
 
   if (category && channel) {
