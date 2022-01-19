@@ -60,11 +60,10 @@ function getGitLink(text) {
       text.indexOf(config.WORD__BEFORE_LINK) + config.WORD__BEFORE_LINK.length
     )
     .trim();
-  const gitLink = textAfterRepoWord.substring(
-    0,
-    textAfterRepoWord.indexOf(" ")
-  );
-
+  const gitLink =
+    textAfterRepoWord.indexOf(" ") > 0
+      ? textAfterRepoWord.substring(0, textAfterRepoWord.indexOf(" "))
+      : textAfterRepoWord;
   return gitLink.indexOf("http") >= 0 ? gitLink : null;
 }
 
