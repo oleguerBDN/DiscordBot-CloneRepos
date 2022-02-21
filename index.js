@@ -12,11 +12,17 @@ const initPath = config.MAIN_FOLDER_PATH;
 program.option("-w, --week <week>");
 program.option("-ch, --challenge <challenge>");
 program.option("-we, --weekend");
+program.option("-all, --all");
 program.parse(process.argv);
-const { week, challenge, weekend } = program.opts();
+const { week, challenge, weekend, all } = program.opts();
 
 client.once("ready", () => {
   console.log("Bot is running :)");
+
+  if (all) {
+    downloadAll();
+  }
+
   const category = client.channels.cache.find(
     (ch) => ch.name === "WEEK-" + week
   );
@@ -86,4 +92,63 @@ function checkAndGetPath(initPath, weekFolder, challengeFolder) {
     }
   }
   return initPath + weekFolder + "/" + challengeFolder;
+}
+
+function downloadAll() {
+  const repoUserList = [];
+
+  client.channels.cache.forEach((channel) => {
+    //WEEK-6 --> 925467758844592279
+    //W6 CH2 --> 925467937329008691
+    //W6 CH2 FORUM --> 925468057621647420
+    //WEEK-7 --> 925468530193879050
+    //WEEK-8 -->925469161637945455
+    //FINAL-PROJECT --> 925470051472146442
+    //PROFES
+    if (
+      channel.messages &&
+      channel.name !== null &&
+      channel.id !== "925468057621647420" &&
+      channel.id !== "925467937329008691" &&
+      channel.parentId !== "925468530193879050" &&
+      channel.parentId !== "925469161637945455" &&
+      channel.parentId !== "925470051472146442" &&
+      channel.name !== "profes"
+    ) {
+      channel.messages.fetch().then((messages) => {
+        messages.forEach((message) => {
+          const gitLink = extractGithubLink(message.content);
+          if (gitLink) {
+            const username = extractUserFromGithubLink(gitLink);
+            console.log(gitLink);
+            repoUserList.push({ username, gitLink });
+          }
+        });
+      });
+    }
+  });
+  console.log("pepe");
+  repoUserList.forEach((repo) =>
+    cloneGitRepo(repo.gitLink, config.DOWNLOAD_ALL_FOLDER_PATH + repo.username)
+  );
+}
+
+function extractGithubLink(text) {
+  const textAfterRepoWord = text
+    .substring(text.indexOf("https://github.com/"))
+    .trim();
+  let gitLink =
+    textAfterRepoWord.indexOf(" ") > 0
+      ? textAfterRepoWord.substring(0, textAfterRepoWord.indexOf(" "))
+      : textAfterRepoWord;
+  gitLink =
+    textAfterRepoWord.indexOf("\n") > 0
+      ? textAfterRepoWord.substring(0, textAfterRepoWord.indexOf("\n"))
+      : textAfterRepoWord;
+  return gitLink.indexOf("https://github.com/") >= 0 ? gitLink : null;
+}
+
+function extractUserFromGithubLink(link) {
+  const linkWithoutDomain = link.substring("https://github.com/".length);
+  return linkWithoutDomain.substring(0, linkWithoutDomain.indexOf("/"));
 }
