@@ -111,6 +111,6 @@ node_modules
 .scannerwork
 sonar-project.properties
 
-pull-all.js
+
 config.json
 cloneAllRepos_1
