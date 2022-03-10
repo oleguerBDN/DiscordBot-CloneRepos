@@ -94,10 +94,10 @@ function checkAndGetPath(initPath, weekFolder, challengeFolder) {
   return initPath + weekFolder + "/" + challengeFolder;
 }
 
-async function downloadAll() {
+function downloadAll() {
   const repoUserList = [];
   console.log("STEP 1 - Let's get all links from discord");
-  await client.channels.cache.forEach(async (channel) => {
+  client.channels.cache.forEach((channel) => {
     //WEEK-6 --> 925467758844592279
     //W6 CH2 --> 925467937329008691
     //W6 CH2 FORUM --> 925468057621647420
@@ -115,8 +115,8 @@ async function downloadAll() {
       channel.parentId !== "925470051472146442" &&
       channel.name !== "profes"
     ) {
-      await channel.messages.fetch().then(async (messages) => {
-        await messages.forEach((message) => {
+      channel.messages.fetch().then((messages) => {
+        messages.forEach((message) => {
           const gitLink = extractGithubLink(message.content);
           if (gitLink) {
             const username = extractUserFromGithubLink(gitLink);
@@ -131,7 +131,7 @@ async function downloadAll() {
   setTimeout(() => {
     console.log("STEP 2 - DOWNLOAD IT ALL! ");
     repoUserList.forEach((repo) =>
-      cloneGitRepo(
+      cloneGitRepoAndRemoveGit(
         repo.gitLink,
         config.DOWNLOAD_ALL_FOLDER_PATH + repo.username
       )
@@ -157,4 +157,14 @@ function extractGithubLink(text) {
 function extractUserFromGithubLink(link) {
   const linkWithoutDomain = link.substring("https://github.com/".length);
   return linkWithoutDomain.substring(0, linkWithoutDomain.indexOf("/"));
+}
+
+function cloneGitRepoAndRemoveGit(link, path) {
+  if (shell.cd(path).code !== 0) {
+    shell.mkdir(path);
+    shell.cd(path);
+  }
+  shell.cd(path);
+  shell.exec("git clone " + link);
+  shell.rm("-rf", "*/.git");
 }
